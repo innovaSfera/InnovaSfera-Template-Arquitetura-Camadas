@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>84352791-0837-44a0-a0c3-624a9e360baa</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>..\..\..</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\4 - Infrastructure\DomainDrivenDesign.Infrastructure.Core\DomainDrivenDesign.Infrastructure.Core.csproj" />
+    <ProjectReference Include="..\..\4 - Infrastructure\DomainDrivenDesign.Infrastructure.IoC\DomainDrivenDesign.Infrastructure.IoC.csproj" />
+  </ItemGroup>
+
+</Project>
