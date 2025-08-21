@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\1 - Presentation\DomainDriveDesign.Presentation.Api\DomainDrivenDesign.Presentation.Api.csproj" />
+     <ProjectReference Include="..\..\..\src\Presentation\InnovaSfera.Template.Presentation.Api\InnovaSfera.Template.Presentation.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

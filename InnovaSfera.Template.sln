@@ -15,13 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{71CCE7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{6DC0A593-0117-4335-8F29-245AD10471F6}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 - UnitTests", "1 - UnitTests", "{AA52E42C-CE19-4EEB-993E-4C349F5C68B2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{AA52E42C-CE19-4EEB-993E-4C349F5C68B2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 - FunctionalTests", "2 - FunctionalTests", "{673CF2D1-0977-4E3F-9176-D6773EF1366D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainDrivenDesign.Tests.Unit", "tests\1 - UnitTests\DomainDrivenDesign.Tests.Unit\DomainDrivenDesign.Tests.Unit.csproj", "{79E20205-938B-4863-8D5F-608D92DABB52}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainDrivenDesign.Tests.FunctionalTests", "tests\2 - FunctionalTests\DomainDrivenDesign.Tests.FunctionalTests\DomainDrivenDesign.Tests.FunctionalTests.csproj", "{1C69DEAF-6FE4-4B1F-A1FF-3B1A2A5CBE55}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FunctionalTests", "FunctionalTests", "{673CF2D1-0977-4E3F-9176-D6773EF1366D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnovaSfera.Template.Presentation.Api", "src\Presentation\InnovaSfera.Template.Presentation.Api\InnovaSfera.Template.Presentation.Api.csproj", "{51A21E16-39C8-35F9-349A-239F15547B87}"
 EndProject
@@ -35,20 +31,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnovaSfera.Template.Domain
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnovaSfera.Template.Application", "src\Application\InnovaSfera.Template.Application\InnovaSfera.Template.Application.csproj", "{2EC079E3-43D9-306B-E3A9-B30B56D2BD10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnovaSfera.Template.Tests.FunctionalTests", "tests\FunctionalTests\InnovaSfera.Template.Tests.FunctionalTests\InnovaSfera.Template.Tests.FunctionalTests.csproj", "{B2BC7EBF-FADE-6956-0A2D-02E524E72B3D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InnovaSfera.Template.Tests.Unit", "tests\UnitTests\InnovaSfera.Template.Tests.Unit\InnovaSfera.Template.Tests.Unit.csproj", "{72B85D88-402A-7ABD-3A56-8341279405E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{79E20205-938B-4863-8D5F-608D92DABB52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{79E20205-938B-4863-8D5F-608D92DABB52}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{79E20205-938B-4863-8D5F-608D92DABB52}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{79E20205-938B-4863-8D5F-608D92DABB52}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1C69DEAF-6FE4-4B1F-A1FF-3B1A2A5CBE55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1C69DEAF-6FE4-4B1F-A1FF-3B1A2A5CBE55}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1C69DEAF-6FE4-4B1F-A1FF-3B1A2A5CBE55}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1C69DEAF-6FE4-4B1F-A1FF-3B1A2A5CBE55}.Release|Any CPU.Build.0 = Release|Any CPU
 		{51A21E16-39C8-35F9-349A-239F15547B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{51A21E16-39C8-35F9-349A-239F15547B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51A21E16-39C8-35F9-349A-239F15547B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -73,6 +65,14 @@ Global
 		{2EC079E3-43D9-306B-E3A9-B30B56D2BD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EC079E3-43D9-306B-E3A9-B30B56D2BD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EC079E3-43D9-306B-E3A9-B30B56D2BD10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2BC7EBF-FADE-6956-0A2D-02E524E72B3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2BC7EBF-FADE-6956-0A2D-02E524E72B3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2BC7EBF-FADE-6956-0A2D-02E524E72B3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2BC7EBF-FADE-6956-0A2D-02E524E72B3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72B85D88-402A-7ABD-3A56-8341279405E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72B85D88-402A-7ABD-3A56-8341279405E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72B85D88-402A-7ABD-3A56-8341279405E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72B85D88-402A-7ABD-3A56-8341279405E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -84,13 +84,13 @@ Global
 		{6DC0A593-0117-4335-8F29-245AD10471F6} = {A55F8D86-4CEC-4123-BD4B-7A37D9774CDD}
 		{AA52E42C-CE19-4EEB-993E-4C349F5C68B2} = {24457A89-D46C-4D98-BF4E-77D9A22803FF}
 		{673CF2D1-0977-4E3F-9176-D6773EF1366D} = {24457A89-D46C-4D98-BF4E-77D9A22803FF}
-		{79E20205-938B-4863-8D5F-608D92DABB52} = {AA52E42C-CE19-4EEB-993E-4C349F5C68B2}
-		{1C69DEAF-6FE4-4B1F-A1FF-3B1A2A5CBE55} = {673CF2D1-0977-4E3F-9176-D6773EF1366D}
 		{51A21E16-39C8-35F9-349A-239F15547B87} = {0C7D88AB-88D4-40D0-B341-EE83E2427E76}
 		{31734FAB-39DD-D6C3-61A5-AAA0281D910A} = {6DC0A593-0117-4335-8F29-245AD10471F6}
 		{47597879-1081-EBB9-3DAA-AB71631D2265} = {6DC0A593-0117-4335-8F29-245AD10471F6}
 		{156BDE6D-CB8A-05A2-DE4C-A1CADBDC59D6} = {6DC0A593-0117-4335-8F29-245AD10471F6}
 		{71CE9642-1C28-2C66-EF15-24F7645A5A1A} = {71CCE78E-47AC-44A2-A78B-B598C13F06A0}
 		{2EC079E3-43D9-306B-E3A9-B30B56D2BD10} = {5FE11485-05CE-4E6A-92DD-7BD8439EA909}
+		{B2BC7EBF-FADE-6956-0A2D-02E524E72B3D} = {673CF2D1-0977-4E3F-9176-D6773EF1366D}
+		{72B85D88-402A-7ABD-3A56-8341279405E8} = {AA52E42C-CE19-4EEB-993E-4C349F5C68B2}
 	EndGlobalSection
 EndGlobal
