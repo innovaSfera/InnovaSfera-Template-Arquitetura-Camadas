@@ -527,5 +527,45 @@ O template inclui configuração básica de logging:
 ## Contato
 Dúvidas ou solicitações devem ser encaminhadas para o time de arquitetura da InnovaSfera.
 
+## Changelog
+
+### Versão Atual
+- ✅ **Pattern Strategy**: Implementação completa para Storage e Cache
+- ✅ **Polly Resilience**: Retry, Circuit Breaker e Timeout policies
+- ✅ **External API Integration**: Cliente Harry Potter API com resiliência
+- ✅ **AutoMapper**: Mapeamento automático entre entidades e DTOs
+- ✅ **Azure Blob Storage**: Estratégia de armazenamento em nuvem
+- ✅ **Redis Cache**: Cache distribuído como estratégia alternativa
+- ✅ **Local Storage**: Estratégia de armazenamento local para desenvolvimento
+- ✅ **Memory Cache**: Cache em memória para desenvolvimento
+- ✅ **Storage Management API**: Endpoints completos para gerenciamento de arquivos
+- ✅ **Comprehensive Documentation**: README atualizado com todas as funcionalidades
+
+### Funcionalidades Implementadas
+1. **Storage Strategy Pattern**
+   - LocalStorageStrategy com sistema de arquivos
+   - AzureBlobStorageStrategy com Azure Storage
+   - StorageContext para alternância dinâmica
+
+2. **Cache Strategy Pattern**
+   - CacheMemoryStrategy para desenvolvimento
+   - CacheRedisStrategy para produção distribuída
+   - CacheContext para alternância dinâmica
+
+3. **API Resilience com Polly**
+   - Retry policy com backoff exponencial
+   - Circuit breaker para proteção contra falhas
+   - Timeout policy para controle de tempo
+
+4. **External API Integration**
+   - HarryPotterApiManager com políticas de resiliência
+   - Mapeamento automático de entidades externas
+   - Tratamento de erros e logging
+
+5. **Dependency Injection Avançada**
+   - Factory patterns para estratégias
+   - Configuração baseada em appsettings
+   - Scoped services para contextos
+
 ---
 **InnovaSfera © Todos os direitos reservados. Uso restrito a funcionários.**
