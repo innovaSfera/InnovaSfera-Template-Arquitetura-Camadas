@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "InnovaSfera",
+  "classifications": ["Web", "API", "Clean Architecture", "DDD", "Layered Architecture"],
+  "name": "InnovaSfera Clean Architecture Template",
+  "identity": "InnovaSfera.CleanArchitecture.Template",
+  "shortName": "innovasfera-clean",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "description": "Template oficial da InnovaSfera para arquitetura limpa em camadas com .NET",
+  "sourceName": "InnovaSfera.Template",
+  "preferNameDirectory": true,
+  "symbols": {
+    "CompanyName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Nome da empresa/organização",
+      "defaultValue": "MyCompany",
+      "replaces": "InnovaSfera"
+    },
+    "UseHttps": {
+      "type": "parameter",
+      "datatype": "bool",
+      "description": "Configurar HTTPS",
+      "defaultValue": "true"
+    },
+    "IncludeDockerfile": {
+      "type": "parameter", 
+      "datatype": "bool",
+      "description": "Incluir Dockerfile",
+      "defaultValue": "true"
+    },
+    "TargetFramework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "description": "Framework de destino",
+      "choices": [
+        {
+          "choice": "net8.0",
+          "description": ".NET 8.0"
+        },
+        {
+          "choice": "net9.0", 
+          "description": ".NET 9.0"
+        }
+      ],
+      "defaultValue": "net8.0",
+      "replaces": "net8.0"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!IncludeDockerfile)",
+          "exclude": [
+            "**/Dockerfile"
+          ]
+        }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Restore NuGet packages",
+      "manualInstructions": [
+        {
+          "text": "Run 'dotnet restore'"
+        }
+      ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

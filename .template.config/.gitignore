@@ -1,0 +1,24 @@
+# Arquivos gerados automaticamente
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+*.userprefs
+
+# Dependências de pacotes NuGet
+packages/
+!packages/repositories.config
+
+# Logs
+logs/
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+
+# Configurações locais
+appsettings.Local.json
+appsettings.Development.json.user
