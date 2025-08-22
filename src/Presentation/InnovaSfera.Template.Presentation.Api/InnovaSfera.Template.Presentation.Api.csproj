@@ -10,12 +10,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="12.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.8" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\Infrastructure\InnovaSfera.Template.Infrastructure.Core\InnovaSfera.Template.Infrastructure.Core.csproj" />
 		<ProjectReference Include="..\..\Infrastructure\InnovaSfera.Template.Infrastructure.IoC\InnovaSfera.Template.Infrastructure.IoC.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Controllers\" />
 	</ItemGroup>
 
 </Project>

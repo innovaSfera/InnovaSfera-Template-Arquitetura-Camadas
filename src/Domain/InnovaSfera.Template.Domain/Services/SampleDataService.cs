@@ -1,19 +1,132 @@
-﻿using DomainDrivenDesign.Domain.Entities;
+﻿using System.Text.Json;
+using DomainDrivenDesign.Domain.Entities;
 using DomainDrivenDesign.Domain.Interfaces.Repositories;
 using DomainDrivenDesign.Domain.Interfaces.Services;
+using InnovaSfera.Template.Domain.Entities;
+using InnovaSfera.Template.Domain.Interfaces.Cache;
+using InnovaSfera.Template.Domain.Interfaces.External;
+using InnovaSfera.Template.Domain.Interfaces.Storage;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace DomainDrivenDesign.Domain.Services;
 
-public class SampleDataService(ISampleDataRepository _repository) : ISampleDataService
+public class SampleDataService(
+        ISampleDataRepository _repository,
+        ILogger<SampleDataService> _logger,
+        IStorageContext _storageContext,
+        IStorageStrategyFactory _strategyFactory,
+        ICacheContext _cacheContext,
+        ICacheStrategyFactory _strategyCacheFactory,
+        IConfiguration _configuration,
+        IHarryPotterApiManager _harryPotterApiManager) : ISampleDataService
 {
-    public async Task Add(SampleData data)
+    public async Task AddAsync(SampleData data)
     {
         _repository.Add(data);
         await _repository.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<SampleData>> GetAll()
+    public async Task<IEnumerable<SampleData>> GetAllAsync()
     {
-        return await _repository.GetAllAsync();
+        try
+        {
+            _logger.LogInformation("Starting SampleData search");
+
+            // Get the cache type from configuration
+            var cacheType = _configuration["Cache:Type"] ?? "memory";
+
+            // Create and set the strategy based on configuration
+            var strategy = _strategyCacheFactory.CreateStrategy(cacheType);
+            _cacheContext.SetStrategy(strategy);
+
+            _logger.LogInformation("Using cache type: {CacheType}", cacheType);
+
+            var result = _cacheContext.GetCachedString("key");
+            if (!string.IsNullOrEmpty(result))
+            {
+                var sampleDataList = JsonSerializer.Deserialize<IEnumerable<SampleData>>(result);
+                return sampleDataList ?? new List<SampleData>();
+            }
+
+            return await _repository.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching for SampleData");
+            throw;
+        }
+    }
+
+    public async Task<ICollection<Character>> GetAllWizardsAsync()
+    {
+        return await _harryPotterApiManager.WizardsGetAllAsync();
+    }
+
+    public async Task<IEnumerable<string>> GetFilesAsync(string path)
+    {
+        try
+        {
+            _logger.LogInformation("Starting file search in path: {Path}", path);
+
+            // Get the storage type from configuration
+            var storageType = _configuration["Storage:Type"] ?? "local";
+
+            // Create and set the strategy based on configuration
+            var strategy = _strategyFactory.CreateStrategy(storageType);
+            _storageContext.SetStrategy(strategy);
+
+            _logger.LogInformation("Using storage type: {StorageType}", storageType);
+
+            var files = await _storageContext.GetFilesAsync(path);
+
+            _logger.LogInformation("Found {Count} files", files.Count());
+
+            return files;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error searching for files in path: {Path}", path);
+            throw;
+        }
+    }
+
+    public async Task<byte[]> ReadFileAsync(string filePath)
+    {
+        try
+        {
+            _logger.LogInformation("Reading file: {FilePath}", filePath);
+
+            var storageType = _configuration["Storage:Type"] ?? "local";
+            var strategy = _strategyFactory.CreateStrategy(storageType);
+            _storageContext.SetStrategy(strategy);
+
+            return await _storageContext.ReadFileAsync(filePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error reading file: {FilePath}", filePath);
+            throw;
+        }
+    }
+
+    public async Task<bool> SaveFileAsync(string filePath, byte[] content)
+    {
+        try
+        {
+            _logger.LogInformation("Saving file: {FilePath}", filePath);
+
+            var storageType = _configuration["Storage:Type"] ?? "local";
+            var strategy = _strategyFactory.CreateStrategy(storageType);
+            _storageContext.SetStrategy(strategy);
+
+            await _storageContext.WriteFileAsync(filePath, content);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error saving file: {FilePath}", filePath);
+            return false;
+        }
     }
 }
