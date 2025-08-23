@@ -7,13 +7,12 @@ namespace DomainDrivenDesign.Infrastructure.Data.Repositories;
 
 public class SampleDataRepository : RepositoryBase<SampleData>, ISampleDataRepository
 {
-    public SampleContext _context { get; set; }
-    public SampleDataRepository(SampleContext context)
-        : base(context)
+    public SampleDataRepository(SampleContext context) : base(context)
     {
-        _context = context;
     }
-    public async Task<IEnumerable<SampleData>> GetAllAsync()
+
+    // Implementação específica se necessário, caso contrário usa a do RepositoryBase
+    public new async Task<IEnumerable<SampleData>> GetAllAsync()
     {
         return await _context.SampleDatas.ToListAsync();
     }

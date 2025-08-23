@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using DomainDrivenDesign.Domain.Entities;
-using DomainDrivenDesign.Domain.Interfaces.Repositories;
+using DomainDrivenDesign.Domain.Interfaces;
 using DomainDrivenDesign.Domain.Interfaces.Services;
 using InnovaSfera.Template.Domain.Entities;
 using InnovaSfera.Template.Domain.Interfaces.Cache;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 namespace DomainDrivenDesign.Domain.Services;
 
 public class SampleDataService(
-        ISampleDataRepository _repository,
+        IUnitOfWork _unitOfWork,
         ILogger<SampleDataService> _logger,
         IStorageContext _storageContext,
         IStorageStrategyFactory _strategyFactory,
@@ -23,8 +23,18 @@ public class SampleDataService(
 {
     public async Task AddAsync(SampleData data)
     {
-        _repository.Add(data);
-        await _repository.SaveChangesAsync();
+        try
+        {
+            _unitOfWork.SampleDataRepository.Add(data);
+            await _unitOfWork.CommitAsync();
+            
+            _logger.LogInformation("SampleData added successfully with ID: {Id}", data.Id);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding SampleData");
+            throw;
+        }
     }
 
     public async Task<IEnumerable<SampleData>> GetAllAsync()
@@ -49,7 +59,7 @@ public class SampleDataService(
                 return sampleDataList ?? new List<SampleData>();
             }
 
-            return await _repository.GetAllAsync();
+            return await _unitOfWork.SampleDataRepository.GetAllAsync();
         }
         catch (Exception ex)
         {

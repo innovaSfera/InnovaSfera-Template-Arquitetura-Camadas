@@ -2,11 +2,13 @@
 using DomainDrivenDesign.Application.Interfaces;
 using DomainDrivenDesign.Application.Mapper;
 using DomainDrivenDesign.Application.Services;
+using DomainDrivenDesign.Domain.Interfaces;
 using DomainDrivenDesign.Domain.Interfaces.Repositories;
 using DomainDrivenDesign.Domain.Interfaces.Services;
 using DomainDrivenDesign.Domain.Services;
 using DomainDrivenDesign.Infrastructure.Data.Context;
 using DomainDrivenDesign.Infrastructure.Data.Repositories;
+using DomainDrivenDesign.Infrastructure.Data.UnitOfWork;
 using FluentValidation;
 using InnovaSfera.Template.Domain.ApiManager;
 using InnovaSfera.Template.Domain.Interfaces.Cache;
@@ -31,6 +33,9 @@ public static class DomainDrivenDesignModule
         #region Redis
         RedisContext.Initialize(configuration);
         #endregion
+
+        // Unit of Work
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Repositories
         services.AddScoped<ISampleDataRepository, SampleDataRepository>();

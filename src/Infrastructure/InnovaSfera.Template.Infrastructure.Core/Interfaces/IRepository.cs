@@ -2,9 +2,9 @@
 
 namespace DomainDrivenDesign.Infrastructure.Core.Interfaces;
 
-public interface IRepository<in T> : IDisposable where T : IEntity
+public interface IRepository<in T> : IDisposable where T : class, IEntity
 {
-    Task SaveChangesAsync();
     void Add(T entity);
     void Update(T entity);
+    void Delete(T entity);
 }
