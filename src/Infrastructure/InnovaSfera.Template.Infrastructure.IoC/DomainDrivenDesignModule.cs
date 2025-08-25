@@ -41,15 +41,27 @@ public static class DomainDrivenDesignModule
 {
     public static void Register(this IServiceCollection services, IConfiguration configuration)
     {
-        #region Redis
-        RedisContext.Initialize(configuration);
-        #endregion
+        #region Database Configuration - Choose ONE
 
+        // === ENTITY FRAMEWORK CONFIGURATION === (ACTIVE)
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         // Repositories
         services.AddScoped<ISampleDataRepository, SampleDataRepository>();
+
+        // === DAPPER CONFIGURATION === (COMMENTED - Uncomment to use)
+        // To use Dapper instead of Entity Framework:
+        // 1. Comment the Entity Framework lines above
+        // 2. Uncomment the Dapper lines below
+        // 3. Configure connection string in appsettings.json
+        //
+        // services.AddScoped<SampleContextDapper>();
+        // services.AddScoped<IUnitOfWork, UnitOfWorkDapper>();
+        // services.AddScoped<ISampleDataRepository, SampleDataRepositoryDapper>();
+
+        #endregion
+
+        // Common repositories (independent of ORM choice)
         services.AddScoped<IUserRepository, InMemoryUserRepository>();
 
         // Services
@@ -122,6 +134,7 @@ public static class DomainDrivenDesignModule
         #endregion
 
         #region Redis
+        RedisContext.Initialize(configuration);
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = configuration["REDIS_CONNECTION_STRING"] ?? "localhost:6379";
@@ -191,6 +204,27 @@ public static class DomainDrivenDesignModule
 
     public static void AddDbContext(this IServiceCollection services, IConfiguration configuration)
     {
+        #region Database Context Configuration - Choose ONE
+
+        // === ENTITY FRAMEWORK CONFIGURATION === (ACTIVE)
+        // For Development - In Memory Database
         services.AddDbContext<SampleContext>(opt => opt.UseInMemoryDatabase("SampleData"));
+        
+        // For Production - SQL Server Database (uncomment and configure connection string)
+        // services.AddDbContext<SampleContext>(opt =>
+        // {
+        //     opt.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+        // });
+
+        // === DAPPER CONFIGURATION === (COMMENTED - Uncomment to use)
+        // When using Dapper, you don't need AddDbContext for Entity Framework
+        // The SampleContextDapper is registered directly in the Register method above
+        // Just ensure you have the connection string configured:
+        //
+        // "ConnectionStrings": {
+        //   "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=InnovaSferaTemplate;Trusted_Connection=true;MultipleActiveResultSets=true"
+        // }
+
+        #endregion
     }
 }
