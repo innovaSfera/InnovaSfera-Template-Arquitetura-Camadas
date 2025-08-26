@@ -47,7 +47,7 @@ public class SampleController : MainController
     /// Get all sample data
     /// </summary>
     /// <returns></returns>
-    [HttpGet(Name = "GetSampleData")]
+    [HttpGet("GetSampleData")]
     public async Task<ActionResult<IEnumerable<SampleDataDto>>> GetAsync()
     {
         if (!ModelState.IsValid)
@@ -67,7 +67,7 @@ public class SampleController : MainController
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpPost(Name = "PostSampleData")]
+    [HttpPost("PostSampleData")]
     public async Task<ActionResult<SendMessageDtoResponse>> PostAsync([FromBody] SampleDataDto request)
     {
         var resultValitor = await _validator.ValidateAsync(request);
@@ -102,7 +102,7 @@ public class SampleController : MainController
     /// Get files with automatic event publishing and example logging
     /// </summary>
     /// <returns></returns>
-    [HttpGet(Name = "GetFiles")]
+    [HttpGet("GetFiles")]
     public async Task<ActionResult<FilesDtoResponse>> GetFilesAsync()
     {
         _logger.LogInformation("Retrieving files from SampleController at {Time}", DateTime.UtcNow);
@@ -128,7 +128,7 @@ public class SampleController : MainController
     /// Get all wizards with integration API Harry Potter
     /// </summary>
     /// <returns></returns>
-    [HttpGet(Name = "GetWizards")]
+    [HttpGet("GetWizards")]
     public async Task<ActionResult<ICollection<CharacterDtoResponse>>> GetWizardsAsync()
     {
 
@@ -152,7 +152,7 @@ public class SampleController : MainController
     /// </summary>
     /// <param name="content"></param>
     /// <returns></returns>
-    [HttpPost(Name = "storage/test-file")]
+    [HttpPost("storage/test-file")]
     public async Task<ActionResult<FileCreateDtoResponse>> CreateTestFileAsync([FromBody] string? content)
     {
         if (!ModelState.IsValid)
@@ -173,7 +173,7 @@ public class SampleController : MainController
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
-    [HttpGet(Name = "storage/files")]
+    [HttpGet("storage/files")]
     public async Task<ActionResult<FilesDtoResponse>> GetStorageFilesAsync([FromQuery] string path = "")
     {
 
@@ -196,7 +196,7 @@ public class SampleController : MainController
     /// </summary>
     /// <param name="fileName"></param>
     /// <returns></returns>
-    [HttpGet(Name = "storage/file/{fileName}")]
+    [HttpGet("storage/file/{fileName}")]
     public async Task<ActionResult<FilesDtoResponse>> GetFileContentAsync(string fileName)
     {
         if (!ModelState.IsValid)
