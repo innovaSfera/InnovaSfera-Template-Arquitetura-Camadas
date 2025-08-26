@@ -1,14 +1,12 @@
-using System.Text;
 using DomainDrivenDesign.Application.Entities;
 using DomainDrivenDesign.Application.Interfaces;
 using InnovaSfera.Template.Application.Dto.Response;
-using InnovaSfera.Template.Domain.Interfaces.Storage;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DomainDriveDesign.Presentation.Api.Controllers;
 
 /// <summary>
-/// Controller Sample
+/// Sample Controller - follows DDD architecture using only Application Services
 /// </summary>
 [Route("api/[controller]")]
 [ApiController]
@@ -19,70 +17,121 @@ namespace DomainDriveDesign.Presentation.Api.Controllers;
 [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
 public class SampleController : ControllerBase
 {
-    private readonly ISampleDataAppService _service;
-    private readonly IStorageContext _storageContext;
+    private readonly ISampleDataAppService _sampleDataAppService;
+    private readonly IStorageAppService _storageAppService;
+    private readonly IMessagingAppService _messagingAppService;
     private readonly ILogger<SampleController> _logger;
 
     public SampleController(
-        ISampleDataAppService service,
-        IStorageContext storageContext,
+        ISampleDataAppService sampleDataAppService,
+        IStorageAppService storageAppService,
+        IMessagingAppService messagingAppService,
         ILogger<SampleController> logger)
     {
-        _service = service;
-        _storageContext = storageContext;
+        _sampleDataAppService = sampleDataAppService;
+        _storageAppService = storageAppService;
+        _messagingAppService = messagingAppService;
         _logger = logger;
     }
+
+    #region Sample Data Operations
 
     [HttpGet(Name = "GetSampleData")]
     public async Task<ActionResult<IEnumerable<SampleDataDto>>> Get()
     {
-        var result = await _service.GetAllAsync();
+        try
+        {
+            var result = await _sampleDataAppService.GetAllAsync();
 
-        if (result == null || !result.Any())
-            return NoContent();
+            if (result == null || !result.Any())
+                return NoContent();
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving sample data");
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
-    [HttpPost(Name = "AddSampleData")]
-    public async Task Add(SampleDataDto sampleData)
+    [HttpPost(Name = "PostSampleData")]
+    public async Task<ActionResult> Post([FromBody] SampleDataDto sampleData)
     {
-        await _service.AddAsync(sampleData);
+        try
+        {
+            // Add the sample data with automatic event sending
+            var (addedSampleData, eventResult) = await _sampleDataAppService.AddAsync(sampleData);
+
+            return Ok(new { 
+                Message = "Sample data created successfully",
+                SampleId = addedSampleData.Id,
+                EventSent = eventResult.IsSuccess,
+                MessagingProvider = eventResult.Provider,
+                EventError = eventResult.IsSuccess ? null : eventResult.ErrorMessage
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating sample data");
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
     [HttpGet("files", Name = "GetFiles")]
     public async Task<ActionResult<IEnumerable<string>>> GetFiles()
     {
-        var result = await _service.GetFilesAsync();
+        try
+        {
+            var (files, eventResult) = await _sampleDataAppService.GetFilesAsync();
 
-        if (result == null || !result.Any())
-            return NoContent();
+            if (!files.Any())
+                return NoContent();
 
-        return Ok(result);
+            return Ok(new
+            {
+                Files = files,
+                Count = files.Count(),
+                EventSent = eventResult?.IsSuccess ?? false,
+                EventError = eventResult?.IsSuccess == false ? eventResult.ErrorMessage : null
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving files");
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
     [HttpGet("wizards", Name = "GetWizards")]
     public async Task<ActionResult<ICollection<CharacterDtoResponse>>> GetWizards()
     {
-        var wizards = await _service.GetAllWizardsAsync();
+        try
+        {
+            var wizards = await _sampleDataAppService.GetAllWizardsAsync();
 
-        if (wizards == null || !wizards.Any())
-            return NoContent();
+            if (wizards == null || !wizards.Any())
+                return NoContent();
 
-        return Ok(wizards);
+            return Ok(wizards);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving wizards");
+            return StatusCode(500, $"Error: {ex.Message}");
+        }
     }
 
+    #endregion
+
+    #region Storage Operations
+
     [HttpPost("storage/test-file")]
-    public async Task<ActionResult<string>> CreateTestFile([FromBody] string content)
+    public async Task<ActionResult<object>> CreateTestFile([FromBody] string? content)
     {
         try
         {
-            var fileName = $"test-{DateTime.UtcNow:yyyyMMddHHmmss}.txt";
-            var fileContent = Encoding.UTF8.GetBytes(content ?? "Default test content");
-            
-            await _storageContext.WriteFileAsync(fileName, fileContent);
-            
-            var storageType = _storageContext.GetStorageType();
+            var (fileName, storageType) = await _storageAppService.CreateTestFileAsync(content);
             
             return Ok(new { 
                 Message = "File created successfully", 
@@ -102,13 +151,13 @@ public class SampleController : ControllerBase
     {
         try
         {
-            var files = await _storageContext.GetFilesAsync(path);
-            var storageType = _storageContext.GetStorageType();
+            var (files, storageType) = await _storageAppService.GetStorageFilesAsync(path);
             
             return Ok(new { 
                 Files = files,
                 StorageType = storageType,
-                Path = path
+                Path = path,
+                Count = files.Count()
             });
         }
         catch (Exception ex)
@@ -119,16 +168,14 @@ public class SampleController : ControllerBase
     }
 
     [HttpGet("storage/file/{fileName}")]
-    public async Task<ActionResult<string>> GetFileContent(string fileName)
+    public async Task<ActionResult<object>> GetFileContent(string fileName)
     {
         try
         {
-            if (!await _storageContext.FileExistsAsync(fileName))
+            if (!await _storageAppService.FileExistsAsync(fileName))
                 return NotFound($"File '{fileName}' not found");
 
-            var fileContent = await _storageContext.ReadFileAsync(fileName);
-            var content = Encoding.UTF8.GetString(fileContent);
-            var storageType = _storageContext.GetStorageType();
+            var (content, storageType) = await _storageAppService.GetFileContentAsync(fileName);
             
             return Ok(new { 
                 FileName = fileName,
@@ -148,12 +195,15 @@ public class SampleController : ControllerBase
     {
         try
         {
-            if (!await _storageContext.FileExistsAsync(fileName))
+            if (!await _storageAppService.FileExistsAsync(fileName))
                 return NotFound($"File '{fileName}' not found");
 
-            await _storageContext.DeleteFileAsync(fileName);
+            var storageType = await _storageAppService.DeleteFileAsync(fileName);
             
-            return Ok(new { Message = $"File '{fileName}' deleted successfully" });
+            return Ok(new { 
+                Message = $"File '{fileName}' deleted successfully",
+                StorageType = storageType
+            });
         }
         catch (Exception ex)
         {
@@ -161,4 +211,184 @@ public class SampleController : ControllerBase
             return StatusCode(500, $"Error: {ex.Message}");
         }
     }
+
+    #endregion
+
+    #region Messaging Operations
+
+    /// <summary>
+    /// Send custom message via messaging system
+    /// </summary>
+    [HttpPost("messaging/send")]
+    public async Task<ActionResult> SendCustomMessage([FromBody] SendMessageRequest request)
+    {
+        try
+        {
+            var result = await _messagingAppService.SendCustomMessageAsync(
+                request.Topic,
+                request.Payload,
+                request.CorrelationId,
+                request.Headers);
+
+            if (result.IsSuccess)
+            {
+                return Ok(new { 
+                    Success = true, 
+                    MessageId = result.MessageId,
+                    Provider = result.Provider,
+                    Message = "Message sent successfully" 
+                });
+            }
+
+            return BadRequest(new { 
+                Success = false, 
+                Error = result.ErrorMessage,
+                Provider = result.Provider 
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in SendCustomMessage endpoint");
+            return StatusCode(500, new { Success = false, Error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Send multiple Sample-related messages in batch
+    /// </summary>
+    [HttpPost("messaging/batch")]
+    public async Task<ActionResult> SendBatchSampleMessages([FromBody] IEnumerable<SampleDataDto> sampleDataList)
+    {
+        try
+        {
+            var results = await _messagingAppService.SendBatchSampleMessagesAsync(sampleDataList);
+            var resultList = results.ToList();
+
+            var successCount = resultList.Count(r => r.IsSuccess);
+            var failureCount = resultList.Count(r => !r.IsSuccess);
+
+            return Ok(new 
+            { 
+                Success = failureCount == 0,
+                TotalMessages = resultList.Count,
+                SuccessCount = successCount,
+                FailureCount = failureCount,
+                Provider = resultList.FirstOrDefault()?.Provider,
+                SampleDataProcessed = sampleDataList.Count(),
+                Results = resultList.Select(r => new {
+                    MessageId = r.MessageId,
+                    Success = r.IsSuccess,
+                    Error = r.ErrorMessage
+                })
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in SendBatchSampleMessages endpoint");
+            return StatusCode(500, new { Success = false, Error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Check messaging system health
+    /// </summary>
+    [HttpGet("messaging/health")]
+    public async Task<ActionResult> CheckMessagingHealth()
+    {
+        try
+        {
+            var (isHealthy, provider, timestamp) = await _messagingAppService.CheckHealthAsync();
+            
+            return Ok(new 
+            { 
+                Success = isHealthy,
+                Provider = provider,
+                Status = isHealthy ? "Healthy" : "Unhealthy",
+                Timestamp = timestamp,
+                Service = "SampleController Messaging Integration"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in CheckMessagingHealth endpoint");
+            return Ok(new 
+            { 
+                Success = false,
+                Provider = "Unknown",
+                Status = "Error",
+                Error = ex.Message,
+                Timestamp = DateTime.UtcNow
+            });
+        }
+    }
+
+    /// <summary>
+    /// Simulate failure and send to DLQ (Dead Letter Queue) with Sample data
+    /// </summary>
+    [HttpPost("messaging/simulate-dlq")]
+    public async Task<ActionResult> SimulateDlqWithSample([FromBody] SampleDataDto sampleData)
+    {
+        try
+        {
+            var result = await _messagingAppService.SimulateDlqWithSampleAsync(sampleData);
+
+            if (result.IsSuccess)
+            {
+                return Ok(new { 
+                    Success = true, 
+                    MessageId = result.MessageId,
+                    Provider = result.Provider,
+                    Message = "Sample data sent to DLQ successfully",
+                    SampleId = sampleData.Id
+                });
+            }
+
+            return BadRequest(new { 
+                Success = false, 
+                Error = result.ErrorMessage,
+                Provider = result.Provider 
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in SimulateDlqWithSample endpoint");
+            return StatusCode(500, new { Success = false, Error = "Internal server error" });
+        }
+    }
+
+    /// <summary>
+    /// Send Sample event with automatic retry
+    /// </summary>
+    [HttpPost("messaging/send-with-retry")]
+    public async Task<ActionResult> SendSampleEventWithRetry([FromBody] SampleDataDto sampleData)
+    {
+        try
+        {
+            var result = await _messagingAppService.SendSampleEventWithRetryAsync(sampleData);
+
+            return Ok(new { 
+                Success = result.IsSuccess,
+                MessageId = result.MessageId,
+                Provider = result.Provider,
+                Message = result.IsSuccess ? "Sample event sent with retry successfully" : "Sample event failed after retries",
+                Error = result.ErrorMessage,
+                SampleId = sampleData.Id
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in SendSampleEventWithRetry endpoint");
+            return StatusCode(500, new { Success = false, Error = "Internal server error" });
+        }
+    }
+
+    #endregion
+}
+
+public class SendMessageRequest
+{
+    public string Topic { get; set; } = string.Empty;
+    public object Payload { get; set; } = new();
+    public string? CorrelationId { get; set; }
+    public Dictionary<string, object>? Headers { get; set; }
 }

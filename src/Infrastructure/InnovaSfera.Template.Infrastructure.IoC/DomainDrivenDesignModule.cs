@@ -3,7 +3,10 @@ using DomainDrivenDesign.Application.Interfaces;
 using DomainDrivenDesign.Application.Mapper;
 using DomainDrivenDesign.Application.Services;
 using DomainDrivenDesign.Domain.Interfaces;
+using DomainDrivenDesign.Domain.Interfaces.Messaging;
+using DomainDrivenDesign.Domain.Services.Messaging;
 using DomainDrivenDesign.Domain.Interfaces.Repositories;
+using Microsoft.Extensions.Logging;
 using DomainDrivenDesign.Domain.Interfaces.Services;
 using DomainDrivenDesign.Domain.Services;
 using DomainDrivenDesign.Infrastructure.Data.Context;
@@ -22,6 +25,7 @@ using InnovaSfera.Template.Domain.Interfaces.Storage;
 using InnovaSfera.Template.Domain.Settings;
 using InnovaSfera.Template.Infrastructure.Data.Cache;
 using InnovaSfera.Template.Infrastructure.Data.External;
+using InnovaSfera.Template.Infrastructure.Data.Messaging.Adapters;
 using InnovaSfera.Template.Infrastructure.Data.Repositories;
 using InnovaSfera.Template.Infrastructure.Data.Services;
 using InnovaSfera.Template.Infrastructure.Data.Storage;
@@ -77,6 +81,8 @@ public static class DomainDrivenDesignModule
         // App Services (Commands in future)
         services.AddScoped<ISampleDataAppService, SampleDataAppService>();
         services.AddScoped<IAuthAppService, AuthAppService>();
+        services.AddScoped<IMessagingAppService, MessagingApplicationService>();
+        services.AddScoped<IStorageAppService, StorageAppService>();
 
         #region Storage Strategy Pattern
         services.AddScoped<IStorageStrategyFactory, StorageStrategyFactory>();
@@ -199,6 +205,33 @@ public static class DomainDrivenDesignModule
 
             services.AddAuthorization();
         }
+        #endregion
+
+        #region Messaging Configuration - Choose ONE provider
+
+        // Core messaging service with Polly patterns
+        services.AddScoped<IMessagingService, MessagingService>();
+
+        // === MESSAGING ADAPTERS === (Choose one or multiple)
+        // Comment/Uncomment based on your needs and install the appropriate NuGet packages
+
+        // RABBITMQ ADAPTER (Install: RabbitMQ.Client)
+        // services.AddScoped<IMessageAdapter, RabbitMqMessageSender>();
+
+        // KAFKA ADAPTER (Install: Confluent.Kafka)
+        // services.AddScoped<IMessageAdapter, KafkaMessageSender>();
+
+        // AZURE SERVICE BUS ADAPTER (Install: Azure.Messaging.ServiceBus)
+        // services.AddScoped<IMessageAdapter, AzureServiceBusMessageSender>();
+
+        // AWS SQS ADAPTER (Install: AWSSDK.SQS)
+        // services.AddScoped<IMessageAdapter, SqsMessageSender>();
+
+        // === DEFAULT CONFIGURATION ===
+        // For development/testing - uses no-op implementation
+        // Remove or comment this when configuring a real provider above
+        services.AddScoped<IMessageAdapter, NoOpMessageSender>();
+
         #endregion
     }
 
