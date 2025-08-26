@@ -3,7 +3,7 @@ using DomainDrivenDesign.Domain.Interfaces.Messaging;
 namespace DomainDrivenDesign.Domain.Entities.Messaging;
 
 /// <summary>
-/// Implementação base de uma mensagem
+/// Base implementation of a message
 /// </summary>
 public class Message : IMessage
 {
@@ -29,7 +29,7 @@ public class Message : IMessage
     }
 
     /// <summary>
-    /// Adiciona um header à mensagem
+    /// Adds a header to the message
     /// </summary>
     public Message AddHeader(string key, object value)
     {
@@ -38,7 +38,7 @@ public class Message : IMessage
     }
 
     /// <summary>
-    /// Incrementa o contador de retry
+    /// Increments the retry counter
     /// </summary>
     public void IncrementRetryCount()
     {
@@ -46,7 +46,7 @@ public class Message : IMessage
     }
 
     /// <summary>
-    /// Incrementa o contador de retry (método alternativo)
+    /// Increments the retry counter (alternative method)
     /// </summary>
     public void IncrementRetry()
     {
@@ -54,7 +54,7 @@ public class Message : IMessage
     }
 
     /// <summary>
-    /// Cria uma cópia da mensagem para retry
+    /// Creates a copy of the message for retry
     /// </summary>
     public Message CreateRetryMessage()
     {

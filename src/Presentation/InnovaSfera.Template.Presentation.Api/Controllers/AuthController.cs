@@ -15,7 +15,7 @@ namespace InnovaSfera.Template.Presentation.Api.Controllers;
 [Produces("application/json")]
 [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
 [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
-public class AuthController : ControllerBase
+public class AuthController : MainController
 {
     private readonly IAuthAppService _authAppService;
     private readonly ILogger<AuthController> _logger;
@@ -32,9 +32,9 @@ public class AuthController : ControllerBase
     /// <param name="request">Dados de login</param>
     /// <returns>Token de acesso e informações do usuário</returns>
     [HttpPost("login")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthResponseDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginRequestDto request)
+    public async Task<ActionResult<AuthResponseDtoResponse>> LoginAsync([FromBody] LoginRequestDto request)
     {
         try
         {
@@ -62,10 +62,10 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during login");
-            return StatusCode(500, new AuthResponseDto 
-            { 
-                Success = false, 
-                Message = "Erro interno do servidor" 
+            return StatusCode(500, new AuthResponseDtoResponse
+            {
+                Success = false,
+                Message = "Erro interno do servidor"
             });
         }
     }
@@ -76,9 +76,9 @@ public class AuthController : ControllerBase
     /// <param name="request">Dados de registro</param>
     /// <returns>Informações do usuário criado</returns>
     [HttpPost("register")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(AuthResponseDtoResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterRequestDto request)
+    public async Task<ActionResult<AuthResponseDtoResponse>> RegisterAsync([FromBody] RegisterRequestDto request)
     {
         try
         {
@@ -94,15 +94,15 @@ public class AuthController : ControllerBase
                 return Conflict(result);
             }
 
-            return CreatedAtAction(nameof(GetProfile), new { }, result);
+            return CreatedAtAction(nameof(GetProfileAsync), new { }, result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during registration");
-            return StatusCode(500, new AuthResponseDto 
-            { 
-                Success = false, 
-                Message = "Erro interno do servidor" 
+            return StatusCode(500, new AuthResponseDtoResponse
+            {
+                Success = false,
+                Message = "Erro interno do servidor"
             });
         }
     }
@@ -113,9 +113,9 @@ public class AuthController : ControllerBase
     /// <param name="request">Refresh token</param>
     /// <returns>Novo token de acesso</returns>
     [HttpPost("refresh-token")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AuthResponseDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenRequestDto? request = null)
+    public async Task<ActionResult<AuthResponseDtoResponse>> RefreshTokenAsync([FromBody] RefreshTokenRequestDto? request = null)
     {
         try
         {
@@ -124,10 +124,10 @@ public class AuthController : ControllerBase
 
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return Unauthorized(new AuthResponseDto 
-                { 
-                    Success = false, 
-                    Message = "Refresh token não fornecido" 
+                return Unauthorized(new AuthResponseDtoResponse
+                {
+                    Success = false,
+                    Message = "Refresh token não fornecido"
                 });
             }
 
@@ -151,10 +151,10 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during token refresh");
-            return StatusCode(500, new AuthResponseDto 
-            { 
-                Success = false, 
-                Message = "Erro interno do servidor" 
+            return StatusCode(500, new AuthResponseDtoResponse
+            {
+                Success = false,
+                Message = "Erro interno do servidor"
             });
         }
     }
@@ -165,8 +165,8 @@ public class AuthController : ControllerBase
     /// <param name="request">Refresh token para revogar</param>
     /// <returns>Resultado da operação</returns>
     [HttpPost("revoke-token")]
-    [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
-    public async Task<ActionResult<AuthResponseDto>> RevokeToken([FromBody] RefreshTokenRequestDto? request = null)
+    [ProducesResponseType(typeof(AuthResponseDtoResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AuthResponseDtoResponse>> RevokeTokenAsync([FromBody] RefreshTokenRequestDto? request = null)
     {
         try
         {
@@ -175,10 +175,10 @@ public class AuthController : ControllerBase
 
             if (string.IsNullOrEmpty(refreshToken))
             {
-                return BadRequest(new AuthResponseDto 
-                { 
-                    Success = false, 
-                    Message = "Refresh token não fornecido" 
+                return BadRequest(new AuthResponseDtoResponse
+                {
+                    Success = false,
+                    Message = "Refresh token não fornecido"
                 });
             }
 
@@ -194,10 +194,10 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during token revocation");
-            return StatusCode(500, new AuthResponseDto 
-            { 
-                Success = false, 
-                Message = "Erro interno do servidor" 
+            return StatusCode(500, new AuthResponseDtoResponse
+            {
+                Success = false,
+                Message = "Erro interno do servidor"
             });
         }
     }
@@ -208,22 +208,22 @@ public class AuthController : ControllerBase
     /// <returns>Informações do usuário</returns>
     [HttpGet("profile")]
     [Authorize]
-    [ProducesResponseType(typeof(UserResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(UserResponseDtoResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<UserResponseDto>> GetProfile()
+    public async Task<ActionResult<UserResponseDtoResponse>> GetProfileAsync()
     {
         try
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
             {
                 return Unauthorized();
             }
 
             var user = await _authAppService.GetUserProfileAsync(userId);
-            
+
             if (user == null)
             {
                 return NotFound();
@@ -246,7 +246,7 @@ public class AuthController : ControllerBase
     [Authorize]
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public ActionResult<object> Protected()
+    public async Task<ActionResult<object>> ProtectedAsync()
     {
         var userName = User.FindFirst(ClaimTypes.Name)?.Value;
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
@@ -271,10 +271,10 @@ public class AuthController : ControllerBase
     [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public ActionResult<object> AdminOnly()
+    public async Task<ActionResult<object>> AdminOnlyAsync()
     {
         var userName = User.FindFirst(ClaimTypes.Name)?.Value;
-        
+
         return Ok(new
         {
             Message = "Você é um administrador!",

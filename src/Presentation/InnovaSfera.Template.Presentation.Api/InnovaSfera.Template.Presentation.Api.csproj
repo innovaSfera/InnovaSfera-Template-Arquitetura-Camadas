@@ -22,8 +22,4 @@
 		<ProjectReference Include="..\..\Infrastructure\InnovaSfera.Template.Infrastructure.IoC\InnovaSfera.Template.Infrastructure.IoC.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Controllers\" />
-	</ItemGroup>
-
 </Project>

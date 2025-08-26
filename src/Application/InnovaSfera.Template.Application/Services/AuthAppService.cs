@@ -31,7 +31,7 @@ public class AuthAppService : IAuthAppService
         _jwtSettings = jwtSettings.Value;
     }
 
-    public async Task<AuthResponseDto> LoginAsync(LoginRequestDto request, string? ipAddress = null)
+    public async Task<AuthResponseDtoResponse> LoginAsync(LoginRequestDto request, string? ipAddress = null)
     {
         try
         {
@@ -40,7 +40,7 @@ public class AuthAppService : IAuthAppService
             if (user == null)
             {
                 _logger.LogWarning("Login failed for email: {Email}", request.Email);
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Credenciais inválidas"
@@ -50,7 +50,7 @@ public class AuthAppService : IAuthAppService
             if (!user.IsActive)
             {
                 _logger.LogWarning("Login attempt for inactive user: {Email}", request.Email);
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Usuário inativo"
@@ -69,20 +69,20 @@ public class AuthAppService : IAuthAppService
 
             _logger.LogInformation("User logged in successfully: {Email}", request.Email);
 
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = true,
                 Message = "Login realizado com sucesso",
                 AccessToken = accessToken,
                 RefreshToken = refreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-                User = _mapper.Map<UserResponseDto>(user)
+                User = _mapper.Map<UserResponseDtoResponse>(user)
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during login for email: {Email}", request.Email);
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = false,
                 Message = "Erro interno do servidor"
@@ -90,13 +90,13 @@ public class AuthAppService : IAuthAppService
         }
     }
 
-    public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
+    public async Task<AuthResponseDtoResponse> RegisterAsync(RegisterRequestDto request)
     {
         try
         {
             if (await _authService.EmailExistsAsync(request.Email))
             {
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Email já está em uso"
@@ -105,7 +105,7 @@ public class AuthAppService : IAuthAppService
 
             if (await _authService.UserNameExistsAsync(request.UserName))
             {
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Nome de usuário já está em uso"
@@ -121,17 +121,17 @@ public class AuthAppService : IAuthAppService
 
             _logger.LogInformation("User registered successfully: {Email}", request.Email);
 
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = true,
                 Message = "Usuário registrado com sucesso",
-                User = _mapper.Map<UserResponseDto>(user)
+                User = _mapper.Map<UserResponseDtoResponse>(user)
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during registration for email: {Email}", request.Email);
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = false,
                 Message = "Erro interno do servidor"
@@ -139,7 +139,7 @@ public class AuthAppService : IAuthAppService
         }
     }
 
-    public async Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null)
+    public async Task<AuthResponseDtoResponse> RefreshTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null)
     {
         try
         {
@@ -149,7 +149,7 @@ public class AuthAppService : IAuthAppService
             var userId = _tokenService.GetUserIdFromToken(request.RefreshToken);
             if (userId == null)
             {
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Token inválido"
@@ -159,7 +159,7 @@ public class AuthAppService : IAuthAppService
             var user = await _authService.GetUserByIdAsync(userId.Value);
             if (user == null)
             {
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Usuário não encontrado"
@@ -170,20 +170,20 @@ public class AuthAppService : IAuthAppService
 
             _logger.LogInformation("Token refreshed successfully for user: {UserId}", userId);
 
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = true,
                 Message = "Token atualizado com sucesso",
                 AccessToken = accessToken,
                 RefreshToken = refreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-                User = _mapper.Map<UserResponseDto>(user)
+                User = _mapper.Map<UserResponseDtoResponse>(user)
             };
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during token refresh");
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = false,
                 Message = "Token inválido ou expirado"
@@ -191,7 +191,7 @@ public class AuthAppService : IAuthAppService
         }
     }
 
-    public async Task<AuthResponseDto> RevokeTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null)
+    public async Task<AuthResponseDtoResponse> RevokeTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null)
     {
         try
         {
@@ -199,7 +199,7 @@ public class AuthAppService : IAuthAppService
             
             if (!success)
             {
-                return new AuthResponseDto
+                return new AuthResponseDtoResponse
                 {
                     Success = false,
                     Message = "Token inválido"
@@ -208,7 +208,7 @@ public class AuthAppService : IAuthAppService
 
             _logger.LogInformation("Token revoked successfully");
 
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = true,
                 Message = "Token revogado com sucesso"
@@ -217,7 +217,7 @@ public class AuthAppService : IAuthAppService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during token revocation");
-            return new AuthResponseDto
+            return new AuthResponseDtoResponse
             {
                 Success = false,
                 Message = "Erro interno do servidor"
@@ -225,12 +225,12 @@ public class AuthAppService : IAuthAppService
         }
     }
 
-    public async Task<UserResponseDto?> GetUserProfileAsync(Guid userId)
+    public async Task<UserResponseDtoResponse?> GetUserProfileAsync(Guid userId)
     {
         try
         {
             var user = await _authService.GetUserByIdAsync(userId);
-            return user != null ? _mapper.Map<UserResponseDto>(user) : null;
+            return user != null ? _mapper.Map<UserResponseDtoResponse>(user) : null;
         }
         catch (Exception ex)
         {

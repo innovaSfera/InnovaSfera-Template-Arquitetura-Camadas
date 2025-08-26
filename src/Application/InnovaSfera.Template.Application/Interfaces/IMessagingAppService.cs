@@ -1,5 +1,4 @@
 using DomainDrivenDesign.Application.Entities;
-using DomainDrivenDesign.Domain.Entities.Messaging;
 using InnovaSfera.Template.Domain.Entities.Messaging;
 
 namespace DomainDrivenDesign.Application.Interfaces;

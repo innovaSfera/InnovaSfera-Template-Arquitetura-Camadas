@@ -48,7 +48,7 @@ public class HarryPotterApiManager : ApiBase, IHarryPotterApiManager
 
             _logger.LogInformation("Successfully retrieved {Count} characters", data?.Count ?? 0);
 
-            return (ICollection<Character>)(data ?? new List<Character>());
+            return data ?? new List<Character>();
         }
         catch (Exception ex)
         {

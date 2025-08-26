@@ -8,7 +8,7 @@ public class AuthMapper : Profile
 {
     public AuthMapper()
     {
-        CreateMap<User, UserResponseDto>()
+        CreateMap<User, UserResponseDtoResponse>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
     }
 }

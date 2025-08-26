@@ -5,9 +5,9 @@ namespace InnovaSfera.Template.Application.Interfaces;
 
 public interface IAuthAppService
 {
-    Task<AuthResponseDto> LoginAsync(LoginRequestDto request, string? ipAddress = null);
-    Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request);
-    Task<AuthResponseDto> RefreshTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null);
-    Task<AuthResponseDto> RevokeTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null);
-    Task<UserResponseDto?> GetUserProfileAsync(Guid userId);
+    Task<AuthResponseDtoResponse> LoginAsync(LoginRequestDto request, string? ipAddress = null);
+    Task<AuthResponseDtoResponse> RegisterAsync(RegisterRequestDto request);
+    Task<AuthResponseDtoResponse> RefreshTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null);
+    Task<AuthResponseDtoResponse> RevokeTokenAsync(RefreshTokenRequestDto request, string? ipAddress = null);
+    Task<UserResponseDtoResponse?> GetUserProfileAsync(Guid userId);
 }

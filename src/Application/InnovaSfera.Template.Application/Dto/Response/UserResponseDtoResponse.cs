@@ -1,6 +1,6 @@
 namespace InnovaSfera.Template.Application.Dto.Response;
 
-public class UserResponseDto
+public class UserResponseDtoResponse
 {
     public Guid Id { get; set; }
     public string Email { get; set; } = string.Empty;
