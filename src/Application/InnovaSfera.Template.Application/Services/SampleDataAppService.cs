@@ -59,7 +59,7 @@ public class SampleDataAppService : ISampleDataAppService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error in AddAsync for SampleId: {SampleId}", sampleDataDto.Id);
+            _logger.LogError(ex.Message, "Error in AddAsync for SampleId: {SampleId}", sampleDataDto.Id);
             throw;
         }
     }

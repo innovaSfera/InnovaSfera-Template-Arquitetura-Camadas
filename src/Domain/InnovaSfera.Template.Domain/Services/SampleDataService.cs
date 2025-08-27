@@ -6,7 +6,6 @@ using InnovaSfera.Template.Domain.Entities;
 using InnovaSfera.Template.Domain.Interfaces.Cache;
 using InnovaSfera.Template.Domain.Interfaces.External;
 using InnovaSfera.Template.Domain.Interfaces.Storage;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace DomainDrivenDesign.Domain.Services;
@@ -15,10 +14,7 @@ public class SampleDataService(
         IUnitOfWork _unitOfWork,
         ILogger<SampleDataService> _logger,
         IStorageContext _storageContext,
-        IStorageStrategyFactory _strategyFactory,
         ICacheContext _cacheContext,
-        ICacheStrategyFactory _strategyCacheFactory,
-        IConfiguration _configuration,
         IHarryPotterApiManager _harryPotterApiManager) : ISampleDataService
 {
     public async Task AddAsync(SampleData data)
@@ -27,7 +23,7 @@ public class SampleDataService(
         {
             _unitOfWork.SampleDataRepository.Add(data);
             await _unitOfWork.CommitAsync();
-            
+
             _logger.LogInformation("SampleData added successfully with ID: {Id}", data.Id);
         }
         catch (Exception ex)
@@ -43,23 +39,18 @@ public class SampleDataService(
         {
             _logger.LogInformation("Starting SampleData search");
 
-            // Get the cache type from configuration
-            var cacheType = _configuration["Cache:Type"] ?? "memory";
-
-            // Create and set the strategy based on configuration
-            var strategy = _strategyCacheFactory.CreateStrategy(cacheType);
-            _cacheContext.SetStrategy(strategy);
-
-            _logger.LogInformation("Using cache type: {CacheType}", cacheType);
-
-            var result = _cacheContext.GetCachedString("key");
-            if (!string.IsNullOrEmpty(result))
+            var result = _cacheContext.GetCacheObject<IEnumerable<SampleData>>("key");
+            if (result != null && result.Any())
             {
-                var sampleDataList = JsonSerializer.Deserialize<IEnumerable<SampleData>>(result);
+                var sampleDataList = result;
                 return sampleDataList ?? new List<SampleData>();
             }
+            var resultRepo = await _unitOfWork.SampleDataRepository.GetAllAsync();
 
-            return await _unitOfWork.SampleDataRepository.GetAllAsync();
+            if (resultRepo != null && resultRepo.Any())
+                _cacheContext.SetCachedObject("key", resultRepo, 60*60);
+
+            return resultRepo ?? new List<SampleData>();
         }
         catch (Exception ex)
         {
@@ -78,15 +69,6 @@ public class SampleDataService(
         try
         {
             _logger.LogInformation("Starting file search in path: {Path}", path);
-
-            // Get the storage type from configuration
-            var storageType = _configuration["Storage:Type"] ?? "local";
-
-            // Create and set the strategy based on configuration
-            var strategy = _strategyFactory.CreateStrategy(storageType);
-            _storageContext.SetStrategy(strategy);
-
-            _logger.LogInformation("Using storage type: {StorageType}", storageType);
 
             var files = await _storageContext.GetFilesAsync(path);
 
@@ -107,10 +89,6 @@ public class SampleDataService(
         {
             _logger.LogInformation("Reading file: {FilePath}", filePath);
 
-            var storageType = _configuration["Storage:Type"] ?? "local";
-            var strategy = _strategyFactory.CreateStrategy(storageType);
-            _storageContext.SetStrategy(strategy);
-
             return await _storageContext.ReadFileAsync(filePath);
         }
         catch (Exception ex)
@@ -125,10 +103,6 @@ public class SampleDataService(
         try
         {
             _logger.LogInformation("Saving file: {FilePath}", filePath);
-
-            var storageType = _configuration["Storage:Type"] ?? "local";
-            var strategy = _strategyFactory.CreateStrategy(storageType);
-            _storageContext.SetStrategy(strategy);
 
             await _storageContext.WriteFileAsync(filePath, content);
             return true;

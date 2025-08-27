@@ -25,11 +25,9 @@ public class ApiBase
 
     public async Task<string> LogApiExceptionAsync(Exception exception)
     {
-
         string text = exception.Message;
         Logger.LogError(exception, "An error occurred while calling the API: {Message}", text);
         return text;
-
     }
 
 }

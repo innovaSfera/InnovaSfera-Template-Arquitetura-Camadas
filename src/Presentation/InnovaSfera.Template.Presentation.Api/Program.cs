@@ -1,4 +1,5 @@
 using DomainDrivenDesign.Infrastructure.IoC;
+using FluentValidation;
 using InnovaSfera.Template.Presentation.Api.Extensions;
 
     
@@ -10,6 +11,9 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
+
+// FluentValidation registration
+builder.Services.AddValidatorsFromAssemblyContaining<InnovaSfera.Template.Presentation.Api.Validators.v1.SampleValidator>();
 
 builder.Services.Register(builder.Configuration);
 builder.Services.AddDbContext(builder.Configuration);

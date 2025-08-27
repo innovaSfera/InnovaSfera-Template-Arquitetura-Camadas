@@ -135,10 +135,6 @@ public static class DomainDrivenDesignModule
             .CircuitBreakerAsync(5, TimeSpan.FromSeconds(30)));
         #endregion
 
-        #region Fluent
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-        #endregion
-
         #region Redis
         RedisContext.Initialize(configuration);
         services.AddStackExchangeRedisCache(options =>
